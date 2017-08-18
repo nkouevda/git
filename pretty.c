@@ -1588,7 +1588,7 @@ static size_t format_commit_one(struct strbuf *sb, /* in UTF-8 */
 		strbuf_addstr(sb, get_revision_mark(NULL, commit));
 		return 1;
 	case 'd':
-		format_decorations(sb, commit, c->auto_color, NULL);
+		format_decorations(sb, commit, c->auto_color, c->pretty_ctx->simplify_by_heads, NULL);
 		return 1;
 	case 'D':
 		{
@@ -1597,7 +1597,7 @@ static size_t format_commit_one(struct strbuf *sb, /* in UTF-8 */
 				.suffix = (char *) "",
 			};
 
-			format_decorations(sb, commit, c->auto_color, &opts);
+			format_decorations(sb, commit, c->auto_color, c->pretty_ctx->simplify_by_heads, &opts);
 			return 1;
 		}
 	case 'S':		/* tag/branch like --source */
@@ -1705,7 +1705,7 @@ static size_t format_commit_one(struct strbuf *sb, /* in UTF-8 */
 			parse_decoration_options(&arg, &opts);
 		}
 		if (*arg == ')') {
-			format_decorations(sb, commit, c->auto_color, &opts);
+			format_decorations(sb, commit, c->auto_color, c->pretty_ctx->simplify_by_heads, &opts);
 			ret = arg - placeholder + 1;
 		}
 

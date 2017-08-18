@@ -807,11 +807,19 @@ static int rev_compare_tree(struct rev_info *revs,
 
 	if (revs->simplify_by_decoration) {
 		/*
-		 * If we are simplifying by decoration, then the commit
-		 * is worth showing if it has a tag pointing at it.
+		 * If `simplify_by_heads`, show commit only if decoration is `HEAD` or starts with
+		 * `refs/heads/`. Otherwise, show regardless of decoration type.
 		 */
-		if (get_name_decoration(&commit->object))
+		const struct name_decoration *decoration = get_name_decoration(&commit->object);
+		if (decoration && !revs->simplify_by_heads)
 			return REV_TREE_DIFFERENT;
+		while (decoration) {
+			if (starts_with(decoration->name, "HEAD")
+			    || starts_with(decoration->name, "refs/heads/"))
+				return REV_TREE_DIFFERENT;
+			decoration = decoration->next;
+		}
+
 		/*
 		 * A commit that is not pointed by a tag is uninteresting
 		 * if we are not limited by path.  This means that you will
@@ -2435,6 +2443,8 @@ static int handle_revision_opt(struct rev_info *revs, int argc, const char **arg
 		revs->simplify_by_decoration = 1;
 		revs->limited = 1;
 		revs->prune = 1;
+	} else if (!strcmp(arg, "--simplify-by-heads")) {
+		revs->simplify_by_heads = 1;
 	} else if (!strcmp(arg, "--date-order")) {
 		revs->sort_order = REV_SORT_BY_COMMIT_DATE;
 		revs->topo_order = 1;
