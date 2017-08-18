@@ -176,6 +176,7 @@ struct rev_info {
 			topo_order:1,
 			simplify_merges:1,
 			simplify_by_decoration:1,
+			simplify_by_heads:1,
 			single_worktree:1,
 			tag_objects:1,
 			tree_objects:1,
