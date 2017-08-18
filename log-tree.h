@@ -21,11 +21,12 @@ int log_tree_opt_parse(struct rev_info *, const char **, int);
 void show_log(struct rev_info *opt);
 void format_decorations_extended(struct strbuf *sb, const struct commit *commit,
 			     int use_color,
+			     int simplify_by_heads,
 			     const char *prefix,
 			     const char *separator,
 			     const char *suffix);
-#define format_decorations(strbuf, commit, color) \
-			     format_decorations_extended((strbuf), (commit), (color), " (", ", ", ")")
+#define format_decorations(strbuf, commit, color, simplify_by_heads) \
+			     format_decorations_extended((strbuf), (commit), (color), (simplify_by_heads), " (", ", ", ")")
 void show_decorations(struct rev_info *opt, struct commit *commit);
 void log_write_email_headers(struct rev_info *opt, struct commit *commit,
 			     const char **extra_headers_p,

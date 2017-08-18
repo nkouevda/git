@@ -283,6 +283,7 @@ static void show_name(struct strbuf *sb, const struct name_decoration *decoratio
 void format_decorations_extended(struct strbuf *sb,
 			const struct commit *commit,
 			int use_color,
+			int simplify_by_heads,
 			const char *prefix,
 			const char *separator,
 			const char *suffix)
@@ -305,7 +306,10 @@ void format_decorations_extended(struct strbuf *sb,
 		 * show HEAD->current where HEAD would have
 		 * appeared, skipping the entry for current.
 		 */
-		if (decoration != current_and_HEAD) {
+		if (decoration != current_and_HEAD
+		    && (!simplify_by_heads
+			|| starts_with(decoration->name, "HEAD")
+			|| starts_with(decoration->name, "refs/heads/"))) {
 			strbuf_addstr(sb, color_commit);
 			strbuf_addstr(sb, prefix);
 			strbuf_addstr(sb, color_reset);
@@ -328,8 +332,10 @@ void format_decorations_extended(struct strbuf *sb,
 		}
 		decoration = decoration->next;
 	}
-	strbuf_addstr(sb, color_commit);
-	strbuf_addstr(sb, suffix);
+	if (prefix == separator) {
+		strbuf_addstr(sb, color_commit);
+		strbuf_addstr(sb, suffix);
+	}
 	strbuf_addstr(sb, color_reset);
 }
 
@@ -345,7 +351,7 @@ void show_decorations(struct rev_info *opt, struct commit *commit)
 	}
 	if (!opt->show_decorations)
 		return;
-	format_decorations(&sb, commit, opt->diffopt.use_color);
+	format_decorations(&sb, commit, opt->diffopt.use_color, opt->simplify_by_heads);
 	fputs(sb.buf, opt->diffopt.file);
 	strbuf_release(&sb);
 }
@@ -755,6 +761,7 @@ void show_log(struct rev_info *opt)
 	ctx.fmt = opt->commit_format;
 	ctx.mailmap = opt->mailmap;
 	ctx.color = opt->diffopt.use_color;
+	ctx.simplify_by_heads = opt->simplify_by_heads;
 	ctx.expand_tabs_in_log = opt->expand_tabs_in_log;
 	ctx.output_encoding = get_log_output_encoding();
 	ctx.rev = opt;
